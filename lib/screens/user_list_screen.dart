@@ -12,13 +12,22 @@ class UserListScreen extends StatefulWidget {
 
 class _UserListScreenState extends State<UserListScreen> {
   final ApiService _apiService = ApiService();
+  final TextEditingController _searchController = TextEditingController();
   List<User> _users = [];
   bool _isLoading = true;
   String? _errorMessage;
+  int _timeoutSeconds = ApiService.defaultTimeout.inSeconds;
+
   @override
   void initState() {
     super.initState();
     _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUsers() async {
@@ -27,17 +36,35 @@ class _UserListScreenState extends State<UserListScreen> {
       _errorMessage = null;
     });
     try {
-      final users = await _apiService.getUsers();
-      setState(() {
-        _users = users;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      final users = await _apiService.getUsers(
+        timeout: Duration(seconds: _timeoutSeconds),
+      );
+      if (mounted) {
+        setState(() {
+          _users = users;
+          _isLoading = false;
+        });
+      }
+    } on Exception catch (error) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = error.toString();
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  List<User> get _filteredUsers {
+    final query = _searchController.text.trim().toLowerCase();
+    if (query.isEmpty) return _users;
+    return _users
+        .where(
+          (user) =>
+              user.name.toLowerCase().contains(query) ||
+              user.email.toLowerCase().contains(query),
+        )
+        .toList();
   }
 
   @override
@@ -55,7 +82,57 @@ class _UserListScreenState extends State<UserListScreen> {
           ),
         ],
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    labelText: 'Cari nama atau email',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.clear),
+                            tooltip: 'Hapus pencarian',
+                          ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Expanded(child: Text('Timeout request')),
+                    DropdownButton<int>(
+                      value: _timeoutSeconds,
+                      items: const [5, 10, 20].map((seconds) {
+                        return DropdownMenuItem(
+                          value: seconds,
+                          child: Text('$seconds detik'),
+                        );
+                      }).toList(),
+                      onChanged: (seconds) {
+                        if (seconds == null) return;
+                        setState(() => _timeoutSeconds = seconds);
+                        _loadUsers();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(child: _buildBody()),
+        ],
+      ),
     );
   }
 
@@ -108,13 +185,17 @@ class _UserListScreenState extends State<UserListScreen> {
     if (_users.isEmpty) {
       return const Center(child: Text('Tidak ada data pengguna'));
     }
+    final users = _filteredUsers;
+    if (users.isEmpty) {
+      return const Center(child: Text('Pengguna tidak ditemukan'));
+    }
     // Success state
     return RefreshIndicator(
       onRefresh: _loadUsers,
       child: ListView.builder(
-        itemCount: _users.length,
+        itemCount: users.length,
         itemBuilder: (context, index) {
-          final user = _users[index];
+          final user = users[index];
           return UserCard(
             user: user,
             onTap: () {

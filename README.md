@@ -1,17 +1,16 @@
-# secure_http
+# Secure Storage & HTTP
 
-A new Flutter project.
+Flutter app latihan yang menggunakan `flutter_secure_storage` dan JSONPlaceholder.
 
-## Getting Started
+## Fitur
 
-This project is a starting point for a Flutter application.
+- Login simulasi memakai email dan password apa saja. Token disimpan di secure
+  storage, dan sesi yang tersimpan dibuka kembali saat aplikasi dijalankan.
+- Logout meminta konfirmasi, menghapus token, lalu kembali ke halaman login.
+- Daftar post dari `GET /posts`, termasuk `userId`, judul, dan isi post.
+- Daftar pengguna dari `GET /users`, dengan pencarian langsung berdasarkan nama
+  atau email.
+- Timeout request pengguna dapat diatur ke 5, 10, atau 20 detik. Default API
+  adalah 10 detik dan pesan timeout menampilkan batas waktu yang dipilih.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Jalankan aplikasi dengan `flutter run`. API memerlukan koneksi internet.
