@@ -72,9 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } on Exception catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Logout gagal: $error')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Logout gagal: $error')));
       }
     }
   }

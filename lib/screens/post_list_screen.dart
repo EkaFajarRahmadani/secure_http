@@ -78,7 +78,11 @@ class _PostListScreenState extends State<PostListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 56, color: Colors.red),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 56,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 12),
                     Text(_errorMessage!, textAlign: TextAlign.center),
                     const SizedBox(height: 16),

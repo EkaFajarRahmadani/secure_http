@@ -11,15 +11,11 @@ class ApiService {
   static const String _baseUrl = 'https://jsonplaceholder.typicode.com';
   static const Duration defaultTimeout = Duration(seconds: 10);
 
-  Future<List<User>> getUsers({
-    Duration timeout = defaultTimeout,
-  }) async {
+  Future<List<User>> getUsers({Duration timeout = defaultTimeout}) async {
     try {
-      print('Request GET: $_baseUrl/users');
       final response = await http
           .get(Uri.parse('$_baseUrl/users'))
           .timeout(timeout);
-      print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => User.fromJson(json)).toList();
@@ -43,11 +39,9 @@ class ApiService {
 
   Future<User> getUserById(int id) async {
     try {
-      print('Request GET: $_baseUrl/users/$id');
       final response = await http
           .get(Uri.parse('$_baseUrl/users/$id'))
           .timeout(defaultTimeout);
-      print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         return User.fromJson(data);
@@ -67,22 +61,16 @@ class ApiService {
     }
   }
 
-  Future<List<Post>> getPosts({
-    Duration timeout = defaultTimeout,
-  }) async {
+  Future<List<Post>> getPosts({Duration timeout = defaultTimeout}) async {
     try {
-      print('Request GET: $_baseUrl/posts');
       final response = await http
           .get(Uri.parse('$_baseUrl/posts'))
           .timeout(timeout);
-      print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => Post.fromJson(json)).toList();
       }
-      throw HttpException(
-        'Gagal memuat data. Status: ${response.statusCode}',
-      );
+      throw HttpException('Gagal memuat data. Status: ${response.statusCode}');
     } on TimeoutException {
       throw TimeoutException(
         'Request timeout setelah ${timeout.inSeconds} detik. Coba lagi.',
